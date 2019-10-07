@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-root',
@@ -15,12 +16,13 @@ export class AppComponent {
       
       reader.onload = () => {
         this.file = reader.result.toString();
-
-        //Con una libreria alasql  libreria de javaScript  que te devuelve un Objeto excel
-
-        //Vamos a comvertir el string a objeto
-        //let obj = JSON.parse(this.file);
-        console.log(this.file);
+        
+        const workbook = XLSX.read(this.file, {type:'string'});
+        const first_sheet_name = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[first_sheet_name];
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, { raw: true });
+        console.log(jsonData);
+        // console.log(this.file);
       };
     }
   }
