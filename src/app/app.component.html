@@ -5,61 +5,56 @@
     </div>
   </div>
   <div class="row mb-4">
-      <div class="col">
-          <input type="file" (change)="leerFicheroExcel($event)">
-      </div>
-  </div>
-  <div class="row mb-4">
-    <div class="col-2">
-      <label>Filtrar por mes</label>
-        <select class="form-control" 
-        [(ngModel)]="monthFilter" (ngModelChange)="filterMonths()">
-          <option value="-1">Sin filtro</option>
-          <option value="0">Enero</option>
-          <option value="1">Febrero</option>
-          <option value="2">Marzo</option>
-          <option value="3">Abril</option>
-          <option value="4">Mayo</option>
-          <option value="5">Junio</option>
-          <option value="6">Julio</option>
-          <option value="7">Agosto</option>
-          <option value="8">Septiembre</option>
-          <option value="9">Octubre</option>
-          <option value="10">Noviembre</option>
-          <option value="11">Diciembre</option>
-        </select>
+    <div class="col">
+      <input type="file" (change)="leerFicheroExcel($event)">
     </div>
   </div>
-  <div class="row">
-      <div class="col">
-          <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>DN</th>
-                  <th>UID</th>
-                  <th>NAME</th>
-                  <th>STATUS</th>
-                  <th>ACTION</th>
-                  <th>APB</th>
-                  <th>JOBCODE</th>
-                  <th>DATE</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let item of fichajesFiltrados; let index = index">
-                  <td>{{index}}</td>
-                  <td>{{item.dn}}</td>
-                  <td>{{item.uid}}</td>
-                  <td>{{item.name}}</td>
-                  <td>{{item.status}}</td>
-                  <td>{{item.action}}</td>
-                  <td>{{item.apb}}</td>
-                  <td>{{item.jobcode}}</td>
-                  <td>{{item.date | date:'medium':'UTC'}}</td>
-                </tr>
-              </tbody>
-            </table>
-      </div>
+  <div *ngIf="registros.length > 0" class="row mb-4">
+    <div class="col-2">
+      <label>Filtrar por empleado</label>
+      <select class="form-control" [(ngModel)]="UIDFilter" (ngModelChange)="filterUID()">
+        <option *ngFor="let registro of registros" [value]="registro.uid">
+          {{registro.name}}
+        </option>
+      </select>
+    </div>
+    <div class="col-2">
+      <label>Filtrar por mes</label>
+      <select class="form-control" [(ngModel)]="monthFilter" (ngModelChange)="filterMonths()">
+        <option value="-1">Sin filtro</option>
+        <option value="0">Enero</option>
+        <option value="1">Febrero</option>
+        <option value="2">Marzo</option>
+        <option value="3">Abril</option>
+        <option value="4">Mayo</option>
+        <option value="5">Junio</option>
+        <option value="6">Julio</option>
+        <option value="7">Agosto</option>
+        <option value="8">Septiembre</option>
+        <option value="9">Octubre</option>
+        <option value="10">Noviembre</option>
+        <option value="11">Diciembre</option>
+      </select>
+    </div>
+  </div>
+
+  <div *ngIf="registros.length > 0 && registroActivo != null" class="row">
+    <div class="col">
+      <h1>{{registroActivo.name}}</h1>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>DIA</th>
+            <th>HORAS</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let registro of registroActivo.registros">
+            <td [attr.rowspan]="registro.horas.length">{{registro.dia.dia}}</td>
+            <td rowspan="1" *ngFor="let hora of registro.horas">{{hora | date:'medium':'UTC'}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>

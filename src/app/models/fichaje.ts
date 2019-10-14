@@ -9,3 +9,19 @@ export interface Fichaje {
     apb: number;
     action: number;
 }
+
+//Objeto que tiene que dar todo esto SEGUN PABLO     su puta Madre
+/*
+[ 
+    {
+        fecha: 21,
+        fichajes: [
+            {
+                nombre: 'Furu',
+                entrada: xxxx,
+                saida: xxxx
+            }
+        ]
+    }
+]
+*/

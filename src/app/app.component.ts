@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import * as XLSX from 'xlsx';
 import { Fichaje } from './models/fichaje';
+import { Registro, RegistroDia, Dia } from './models/registro';
 
 @Component({
   selector: 'app-root',
@@ -8,9 +9,10 @@ import { Fichaje } from './models/fichaje';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  private fichajes: Fichaje[] = []; 
-  public fichajesFiltrados: Fichaje[] = [];
+  public registros: Registro[] = [];
+  public UIDFilter: string;
   public monthFilter: string;
+  public registroActivo: Registro;
 
   public leerFicheroExcel(event) {
     let reader = new FileReader();
@@ -25,8 +27,9 @@ export class AppComponent {
         const first_sheet_name = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[first_sheet_name];
         const jsonData = XLSX.utils.sheet_to_json(worksheet, { raw: true });
-        this.fichajes = this.transformJsonData(jsonData);
-        this.fichajesFiltrados = this.fichajes;
+        this.registros = this.getRegistros(this.transformJsonData(jsonData));
+        this.UIDFilter = this.registros[0].uid.toString();
+        this.filterUID();
       };
     }
   }
@@ -47,9 +50,53 @@ export class AppComponent {
     });
   } 
 
+  private getRegistros(fichajes: Fichaje[]): Registro[] {
+    const fichajesUID: Map<number, Fichaje[]> = new Map();
+    fichajes.forEach(fichaje => {
+      const registro = fichajesUID.get(fichaje.uid);
+      if (registro == null) {
+        fichajesUID.set(fichaje.uid, [fichaje]);
+      } else {
+        registro.push(fichaje);
+      }
+    });
+    return [...fichajesUID.values()].map(fichajes => {
+      return {
+        uid: fichajes[0].uid,
+        name: fichajes[0].name,
+        registros: this.getRegistrosDia(fichajes.map(fichaje => fichaje.date)),
+      }
+    });
+  }
+
+  private getRegistrosDia(fechas: Date[]): RegistroDia[] {
+    const registros: RegistroDia[] = [];
+    fechas.forEach(fecha => {
+      const dia: Dia = {
+        ano: fecha.getFullYear(),
+        mes: fecha.getMonth(),
+        dia: fecha.getDate(),
+      };
+      const diaActivo = registros.find(item => JSON.stringify(item.dia) ===JSON.stringify(dia));
+      if (diaActivo != null) {
+        diaActivo.horas.push(fecha);
+      } else {
+        registros.push({
+          dia: dia,
+          horas: [fecha]
+        });
+      }
+    });
+    return registros;
+  }
+
   public filterMonths(){
     console.log("filtrando por ", this.monthFilter);
-    this.fichajesFiltrados = this.fichajes.filter(item => item.date.getMonth() === parseInt(this.monthFilter));
-  }  
+    // this.fichajesFiltrados = this.fichajes.filter(item => item.date.getMonth() === parseInt(this.monthFilter));
+  }
 
+  public filterUID(){
+    this.registroActivo = this.registros.find(registro => registro.uid === parseInt(this.UIDFilter, 10));
+    console.log("filtrando por ", this.UIDFilter);
+  }
 }
