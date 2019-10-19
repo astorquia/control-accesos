@@ -12,7 +12,7 @@
   <div *ngIf="registros.length > 0" class="row mb-4">
     <div class="col-2">
       <label>Filtrar por empleado</label>
-      <select class="form-control" [(ngModel)]="UIDFilter" (ngModelChange)="filterUID()">
+      <select class="form-control" [(ngModel)]="UIDFilter" (ngModelChange)="filter()">
         <option *ngFor="let registro of registros" [value]="registro.uid">
           {{registro.name}}
         </option>
@@ -20,8 +20,8 @@
     </div>
     <div class="col-2">
       <label>Filtrar por mes</label>
-      <select class="form-control" [(ngModel)]="monthFilter" (ngModelChange)="filterMonths()">
-        <option value="-1">Sin filtro</option>
+      <select class="form-control filtro-meses" [(ngModel)]="monthFilter" (ngModelChange)="filter()">
+        <option value="-1">TODOS LOS MESES</option>
         <option value="0">Enero</option>
         <option value="1">Febrero</option>
         <option value="2">Marzo</option>
@@ -41,17 +41,34 @@
   <div *ngIf="registros.length > 0 && registroActivo != null" class="row">
     <div class="col">
       <h1>{{registroActivo.name}}</h1>
-      <table class="table table-striped">
+      <table class="table">
         <thead>
           <tr>
+            <th>MES</th>
             <th>DIA</th>
             <th>HORAS</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let registro of registroActivo.registros">
-            <td [attr.rowspan]="registro.horas.length">{{registro.dia.dia}}</td>
-            <td rowspan="1" *ngFor="let hora of registro.horas">{{hora | date:'medium':'UTC'}}</td>
+          <tr *ngFor="let registro of registrosFiltro"
+            [class.red] = "getSumHoras(registro.horas) < 8"
+            [class.green] = "getSumHoras(registro.horas) >= 8">
+            <td>{{getMonthName(registro.dia.mes)}}</td>
+            <td>{{registro.dia.dia}}</td>
+            <td>
+              <ul>
+                <li *ngFor="let hora of registro.horas">
+                    {{hora | date:'shortTime':'UTC'}}
+                </li>
+              </ul>
+              <br>
+              <p *ngIf="getSumHoras(registro.horas) != null else horasIncorrectas">
+                Total: {{getSumHoras(registro.horas) | number:'1.0-2'}}
+              </p>
+              <ng-template #horasIncorrectas>
+                  <p>Horas incorrectas</p>
+              </ng-template>
+            </td>
           </tr>
         </tbody>
       </table>

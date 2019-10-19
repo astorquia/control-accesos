@@ -1,0 +1,15 @@
+ul{
+    list-style: none;
+}
+
+.filtro-meses{
+    width: 230px;
+}
+
+.red{
+    background-color: #f9acac;
+}
+
+.green{
+    background-color: lightgreen;
+}
